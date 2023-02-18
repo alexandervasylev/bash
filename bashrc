@@ -51,18 +51,10 @@ function get_git_branch_name() {
 function get_kube_context() {
     local name="$(kubectl config current-context 2>/dev/null)"
 
-    [[ -f "${HOME}/.kube/config" ]] && echo "|k8s:${name}"
+    [[ -f "${HOME}/.kube/config" ]] && [[ -n ${name} ]] && echo "|k:${name}"
 }
 
 export PS1="\[${CF_GREEN}\]\w\[${ENDCOLOR}\]\[${CF_YELLOW}\]\$(get_kube_context)\[${ENDCOLOR}\]\[${CF_MAGENTA}\]\$(get_git_branch_name)\[${ENDCOLOR}\] $ "
-
-# Paths
-export PATH="/usr/local/aws-cli:${PATH}"
-export PATH="/opt/local/bin:${PATH}"
-export PATH="${HOME}/google-cloud-sdk/bin:${PATH}"
-export PATH="${HOME}/.tfenv/bin:${PATH}"
-export PATH="${HOME}/Library/Python/3.9/bin:${PATH}"
-export PATH="${HOME}/yandex-cloud/bin/:${PATH}"
 
 # Extra env
 export HELM_EXPERIMENTAL_OCI=1
@@ -72,6 +64,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 alias kctx="kubectl config use-context"
 alias tfplan="tfenv use && terraform plan -out /tmp/plan"
 alias sublime="open -a \"Sublime Text\""
+alias brew='env PATH="${PATH//$(pyenv root)\/shims:/}" brew'
 
 # Load private bashrc
 [[ -f "${HOME}/.bashrc_private" ]] && source "${HOME}/.bashrc_private"
@@ -93,8 +86,5 @@ function lenv() {
 # Add key to ssh-agent
 ssh-add -k
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
+# Other
+eval "$(/opt/homebrew/bin/brew shellenv)"
